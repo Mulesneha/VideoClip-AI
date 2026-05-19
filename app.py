@@ -1,4 +1,22 @@
 import os
+import gradio as gr
+
+# ----------------------------------------
+# Create Short Video Function
+# ----------------------------------------
+def create_short(video_path, segment, index):
+    from moviepy.editor import VideoFileClip
+
+    video = VideoFileClip(video_path)
+
+    start = segment["start"]
+    end = segment["end"]
+
+    clip = video.subclip(start, end)
+
+    output_path = f"short_{index}.mp4"
+
+    final = clip
 
     final.write_videofile(
         output_path,
@@ -7,7 +25,7 @@ import os
     )
 
     video.close()
-    final.close()
+    clip.close()
 
     return output_path
 
@@ -15,11 +33,11 @@ import os
 # ----------------------------------------
 # Main Processing Function
 # ----------------------------------------
-
 def process_video(video_file):
     if video_file is None:
         return []
 
+    # Gradio gives file path directly (usually)
     video_path = video_file
 
     print("Transcribing...")
@@ -42,7 +60,6 @@ def process_video(video_file):
 # ----------------------------------------
 # Gradio UI
 # ----------------------------------------
-
 with gr.Blocks() as demo:
     gr.Markdown("# AI Video Shorts Generator")
     gr.Markdown("Upload a long video and generate AI-powered short clips.")
@@ -51,13 +68,12 @@ with gr.Blocks() as demo:
 
     generate_btn = gr.Button("Generate Shorts")
 
-    output_gallery = gr.Files(label="Generated Shorts")
+    output_files = gr.Files(label="Generated Shorts")
 
     generate_btn.click(
         fn=process_video,
         inputs=video_input,
-        outputs=output_gallery
+        outputs=output_files
     )
-
 
 demo.launch()
