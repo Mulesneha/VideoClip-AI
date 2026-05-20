@@ -68,3 +68,17 @@ http://127.0.0.1:7860
 3.Detects important segments
 4.Extracts clips using MoviePy
 5.Returns top short videos
+
+🔮 Future Improvements
+🎯 AI viral moment detection (Whisper + GPT)
+📱 Auto TikTok/YouTube Shorts formatting (9:16)
+🔥 Face/object-based highlight detection
+☁️ Cloud deployment (HuggingFace / Render)
+🎵 Auto background music addition
+🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+👨‍💻 Author
+Sneha Mule 
+Built with ❤️ using Python & AI
