@@ -1,27 +1,35 @@
-import os
 import gradio as gr
+from moviepy.editor import VideoFileClip
 
-# ----------------------------------------
-# Create Short Video Function
-# ----------------------------------------
+# -----------------------------
+# Dummy AI functions (replace later)
+# -----------------------------
+def transcribe_video(video_path):
+    return "This is a sample transcript with multiple interesting moments."
+
+def detect_segments(transcript):
+    # Fake segments for testing
+    return [
+        {"start": 0, "end": 5},
+        {"start": 5, "end": 10},
+        {"start": 10, "end": 15},
+    ]
+
+# -----------------------------
+# Create short clip
+# -----------------------------
 def create_short(video_path, segment, index):
-    from moviepy.editor import VideoFileClip
-
     video = VideoFileClip(video_path)
 
-    start = segment["start"]
-    end = segment["end"]
-
-    clip = video.subclip(start, end)
-
+    clip = video.subclip(segment["start"], segment["end"])
     output_path = f"short_{index}.mp4"
 
-    final = clip
-
-    final.write_videofile(
+    clip.write_videofile(
         output_path,
         codec="libx264",
-        audio_codec="aac"
+        audio_codec="aac",
+        verbose=False,
+        logger=None
     )
 
     video.close()
@@ -29,51 +37,46 @@ def create_short(video_path, segment, index):
 
     return output_path
 
-
-# ----------------------------------------
-# Main Processing Function
-# ----------------------------------------
+# -----------------------------
+# Main function
+# -----------------------------
 def process_video(video_file):
     if video_file is None:
         return []
 
-    # Gradio gives file path directly (usually)
-    video_path = video_file
+    # FIX: Gradio may return dict
+    video_path = video_file["path"] if isinstance(video_file, dict) else video_file
 
-    print("Transcribing...")
-    transcript = transcribe_video(video_path)
+    try:
+        print("Transcribing...")
+        transcript = transcribe_video(video_path)
 
-    print("Finding best moments...")
-    segments = detect_segments(transcript)
+        print("Finding segments...")
+        segments = detect_segments(transcript)
 
-    generated_clips = []
+        outputs = []
 
-    for i, segment in enumerate(segments[:5]):
-        print(f"Creating short {i + 1}")
+        for i, seg in enumerate(segments[:3]):
+            print("Creating clip", i)
+            path = create_short(video_path, seg, i)
+            outputs.append(path)
 
-        clip_path = create_short(video_path, segment, i)
-        generated_clips.append(clip_path)
+        return outputs
 
-    return generated_clips
+    except Exception as e:
+        print("ERROR:", e)
+        return []
 
-
-# ----------------------------------------
-# Gradio UI
-# ----------------------------------------
+# -----------------------------
+# UI
+# -----------------------------
 with gr.Blocks() as demo:
-    gr.Markdown("# AI Video Shorts Generator")
-    gr.Markdown("Upload a long video and generate AI-powered short clips.")
+    gr.Markdown("# 🎬 AI Video Shorts Generator")
 
     video_input = gr.Video(label="Upload Video")
+    btn = gr.Button("Generate Shorts")
+    output = gr.Files(label="Short Clips")
 
-    generate_btn = gr.Button("Generate Shorts")
-
-    output_files = gr.Files(label="Generated Shorts")
-
-    generate_btn.click(
-        fn=process_video,
-        inputs=video_input,
-        outputs=output_files
-    )
+    btn.click(process_video, inputs=video_input, outputs=output)
 
 demo.launch()
