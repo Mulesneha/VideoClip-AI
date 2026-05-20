@@ -2,6 +2,8 @@
 
 An AI-powered tool that converts long videos into short, engaging clips using transcription and segment detection. Built with Python, Gradio, and MoviePy.
 
+<img width="956" height="473" alt="image" src="https://github.com/user-attachments/assets/14fff0da-bc0a-4bec-b823-db404cce78a4" />
+
  📁 Project Structure:
  VideoClip-AI/
 │── app.py
@@ -20,12 +22,14 @@ An AI-powered tool that converts long videos into short, engaging clips using tr
 🎬 Generates multiple short clips
 🌐 Simple Gradio web interface
 💾 Downloads output as MP4 files
+
 🏗️ Tech Stack
 Python 3.10+
 Gradio
 MoviePy
 (Optional) Whisper / NLP model for transcription
 FFmpeg
+
 📦 Installation
 1. Clone the repository
 git clone https://github.com/your-username/video-shorts-ai.git
@@ -56,11 +60,11 @@ choco install ffmpeg
 python app.py
 
 Then open:
-
 http://127.0.0.1:7860
+
 🧠 How it works
-Upload a long video
-The system transcribes audio → text
-Detects important segments
-Extracts clips using MoviePy
-Returns top short videos
+1.Upload a long video
+2.The system transcribes audio → text
+3.Detects important segments
+4.Extracts clips using MoviePy
+5.Returns top short videos
