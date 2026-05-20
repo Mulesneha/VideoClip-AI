@@ -5,6 +5,10 @@ An AI-powered tool that converts long videos into short, engaging clips using tr
 <img width="956" height="473" alt="image" src="https://github.com/user-attachments/assets/14fff0da-bc0a-4bec-b823-db404cce78a4" />
 
  📁 Project Structure:
+
+
+
+ 
  <img width="139" height="137" alt="image" src="https://github.com/user-attachments/assets/3031b916-9f23-4f78-a406-2fdb24c83bdd" />
 
     
