@@ -1,82 +1,88 @@
-import gradio as gr
-from moviepy.editor import VideoFileClip
+import streamlit as st
+from moviepy import VideoFileClip
+import os
 
-# -----------------------------
-# Dummy AI functions (replace later)
-# -----------------------------
-def transcribe_video(video_path):
-    return "This is a sample transcript with multiple interesting moments."
+st.set_page_config(
+    page_title="VideoClip AI",
+    page_icon="🎬",
+    layout="wide"
+)
 
-def detect_segments(transcript):
-    # Fake segments for testing
-    return [
-        {"start": 0, "end": 5},
-        {"start": 5, "end": 10},
-        {"start": 10, "end": 15},
-    ]
+st.title("🎬 VideoClip AI")
+st.subheader("AI-Powered Video Shorts Generator")
 
-# -----------------------------
-# Create short clip
-# -----------------------------
-def create_short(video_path, segment, index):
-    video = VideoFileClip(video_path)
+st.write(
+    "Upload a video and generate short clips from interesting moments."
+)
 
-    clip = video.subclip(segment["start"], segment["end"])
-    output_path = f"short_{index}.mp4"
+video_file = st.file_uploader(
+    "Upload your video",
+    type=["mp4", "mov", "avi", "mkv"]
+)
 
-    clip.write_videofile(
-        output_path,
-        codec="libx264",
-        audio_codec="aac",
-        verbose=False,
-        logger=None
-    )
+if video_file is not None:
 
-    video.close()
-    clip.close()
+    st.video(video_file)
 
-    return output_path
+    if st.button("🚀 Generate Shorts"):
 
-# -----------------------------
-# Main function
-# -----------------------------
-def process_video(video_file):
-    if video_file is None:
-        return []
+        with st.spinner("Processing video..."):
 
-    # FIX: Gradio may return dict
-    video_path = video_file["path"] if isinstance(video_file, dict) else video_file
+            input_path = "input_video.mp4"
 
-    try:
-        print("Transcribing...")
-        transcript = transcribe_video(video_path)
+            with open(input_path, "wb") as f:
+                f.write(video_file.getbuffer())
 
-        print("Finding segments...")
-        segments = detect_segments(transcript)
+            try:
+                video = VideoFileClip(input_path)
 
-        outputs = []
+                duration = video.duration
 
-        for i, seg in enumerate(segments[:3]):
-            print("Creating clip", i)
-            path = create_short(video_path, seg, i)
-            outputs.append(path)
+                st.success(
+                    f"Video uploaded successfully! Duration: {duration:.2f} seconds"
+                )
 
-        return outputs
+                # Demo segments
+                segments = [
+                    (0, min(5, duration)),
+                    (min(5, duration), min(10, duration)),
+                    (min(10, duration), min(15, duration))
+                ]
 
-    except Exception as e:
-        print("ERROR:", e)
-        return []
+                for i, (start, end) in enumerate(segments):
 
-# -----------------------------
-# UI
-# -----------------------------
-with gr.Blocks() as demo:
-    gr.Markdown("# 🎬 AI Video Shorts Generator")
+                    if start >= duration:
+                        continue
 
-    video_input = gr.Video(label="Upload Video")
-    btn = gr.Button("Generate Shorts")
-    output = gr.Files(label="Short Clips")
+                    end = min(end, duration)
 
-    btn.click(process_video, inputs=video_input, outputs=output)
+                    clip = video.subclipped(start, end)
 
-demo.launch()
+                    output_path = f"short_{i + 1}.mp4"
+
+                    clip.write_videofile(
+                        output_path,
+                        codec="libx264",
+                        audio_codec="aac",
+                        logger=None
+                    )
+
+                    st.write(f"### 🎞️ Short {i + 1}")
+
+                    with open(output_path, "rb") as file:
+                        st.video(file)
+
+                        st.download_button(
+                            label=f"⬇️ Download Short {i + 1}",
+                            data=file,
+                            file_name=output_path,
+                            mime="video/mp4",
+                            key=f"download_{i}"
+                        )
+
+                    clip.close()
+
+                video.close()
+
+            except Exception as e:
+                st.error(f"Error: {e}")
